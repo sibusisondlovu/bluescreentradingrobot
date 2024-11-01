@@ -1,4 +1,8 @@
+import 'package:bluescreenrobot/views/screens/subscription_plan_screen.dart';
 import 'package:flutter/material.dart';
+import '../views/screens/layout_screen.dart';
+import '../views/screens/licence_activation_screen.dart';
+import '../views/screens/subscribe.dart';
 import '../wrapper.dart';
 
 class RouteGenerator {
@@ -8,6 +12,18 @@ class RouteGenerator {
 
       case Wrapper.id:
         return _route(const Wrapper());
+
+      case SubscribeScreen.id:
+        return _route(const SubscribeScreen());
+
+      case SubscriptionPlanScreen.id:
+        return _route(const SubscriptionPlanScreen());
+
+      case LicenceActivationScreen.id:
+        return _route(const LicenceActivationScreen());
+
+      case LayoutScreen.id:
+        return _route(const LayoutScreen());
 
       default:
         return _errorRoute(settings.name);
