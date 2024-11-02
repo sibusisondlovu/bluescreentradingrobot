@@ -1,3 +1,6 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -15,7 +18,8 @@ class LicenceActivationScreen extends StatefulWidget {
 class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String? _licenseKey;
+  final TextEditingController _licenceKeyController = TextEditingController();
+  bool isLoading = false;
   String? _selectedMentor;
 
   @override
@@ -70,6 +74,7 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
 
                             // License Key Field
                             TextFormField(
+                              controller: _licenceKeyController,
                               decoration: const InputDecoration(
                                 labelText: "License Key",
                                 border: OutlineInputBorder(),
@@ -80,9 +85,7 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
                                 }
                                 return null;
                               },
-                              onSaved: (value) {
-                                _licenseKey = value;
-                              },
+
                             ),
                             const SizedBox(height: 20),
 
@@ -96,8 +99,8 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
                               hint: const Text("Select Mentor"),
                               items: const [
                                 DropdownMenuItem(
-                                  value: "KariosFX",
-                                  child: Text("KariosFX"),
+                                  value: "Kairos FX",
+                                  child: Text("Kairos FX"),
                                 ),
                               ],
                               onChanged: (value) {
@@ -116,7 +119,7 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
 
                             CustomElevatedButton(
                               onPressed: (){
-                                Navigator.pushNamed(context, 'layoutScreen');
+                                _checkLicenceKey();
 
                               },
                               text: 'ACTIVATE',
@@ -136,5 +139,59 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _checkLicenceKey() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final licenceKey = _licenceKeyController.text.trim();
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('licences')
+          .where('licenceKy', isEqualTo: licenceKey)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final licenceData = querySnapshot.docs.first.data();
+
+        // Show Awesome Dialog with license details
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          title: 'License Details Found',
+          desc: 'Email: ${licenceData['emailAddress']}\n'
+              'Mentor: ${licenceData['mentor']}\n'
+              'Purchase Date: ${licenceData['purchaseDate']}\n'
+              'Expiry Date: ${licenceData['expiryDate']}',
+          btnOkOnPress: () {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              'layoutScreen',
+                  (Route<dynamic> route) => false,
+            );
+          },
+        ).show();
+      } else {
+        // Show error message if license key is not found
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          title: 'License Key Not Found',
+          desc: 'Please enter a valid license key.',
+          btnOkOnPress: () {},
+        ).show();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking license key: $e');
+      }
+      // Handle error appropriately, e.g., show an error dialog
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

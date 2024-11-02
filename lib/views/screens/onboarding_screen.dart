@@ -48,19 +48,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       totalPage: 3,
       headerBackgroundColor: Colors.white,
       pageBackgroundColor: Colors.white,
-      centerBackground: true,
+    centerBackground: true,
 
       background: [
         Image.asset(
           'assets/images/1.jpg',
+          width: MediaQuery.of(context).size.width * 0.5,
+
         ),
         Image.asset(
           'assets/images/2.jpg',
+          width: MediaQuery.of(context).size.width * 0.5,
 
         ),
         Image.asset(
           'assets/images/3.jpg',
-
+          width: MediaQuery.of(context).size.width * 0.5,
         ),
       ],
       speed: 1.8,
@@ -68,32 +71,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Container(
           alignment: Alignment.center,
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: const Column(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 480,
+                height: MediaQuery.of(context).size.height * 0.5,
               ),
               Text(
                 'Effortless Automation',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.mainColor,
-                  fontSize: 24.0,
+                  fontSize: 20.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 10,
               ),
               Text(
                 'Our robot handles trading, keeping you in the market while you focus on other things. Just connect your MT4/MT5 and set your strategy.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black26,
-                  fontSize: 18.0,
+                  fontSize: 14.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -103,20 +106,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Container(
           alignment: Alignment.center,
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: const Column(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 480,
+                height: MediaQuery.of(context).size.height * 0.5,
               ),
               Text(
                 'Customizable Strategies',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppTheme.darkColor,
-                  fontSize: 24.0,
+                  color: AppTheme.mainColor,
+                  fontSize: 20.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -128,7 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black26,
-                  fontSize: 18.0,
+                  fontSize: 14.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -138,20 +141,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Container(
           alignment: Alignment.center,
           width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: const Column(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 480,
+                height: MediaQuery.of(context).size.height * 0.5,
               ),
               Text(
                 'Secure, Real-Time Trading',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.mainColor,
-                  fontSize: 24.0,
+                  fontSize: 20.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -163,7 +166,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black26,
-                  fontSize: 18.0,
+                  fontSize: 14.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),

@@ -1,8 +1,10 @@
+import 'package:bluescreenrobot/views/screens/payfast_screen.dart';
 import 'package:bluescreenrobot/views/screens/subscription_plan_screen.dart';
 import 'package:flutter/material.dart';
 import '../views/screens/layout_screen.dart';
 import '../views/screens/licence_activation_screen.dart';
 import '../views/screens/subscribe.dart';
+import '../views/screens/symbols_screen.dart';
 import '../wrapper.dart';
 
 class RouteGenerator {
@@ -24,6 +26,12 @@ class RouteGenerator {
 
       case LayoutScreen.id:
         return _route(const LayoutScreen());
+
+      case SymbolsScreen.id:
+        return _route(const SymbolsScreen());
+
+      // case PayfastScreen.id:
+      //   return _route(PayfastScreen(uri: args));
 
       default:
         return _errorRoute(settings.name);
