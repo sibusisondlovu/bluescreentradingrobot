@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class SymbolsScreen extends StatefulWidget {
-  const SymbolsScreen({super.key});
+  const SymbolsScreen({super.key, required this.robotName});
   static const String id = "symbolsScreen";
+  final String robotName;
 
   @override
   State<SymbolsScreen> createState() => _SymbolsScreenState();
@@ -19,8 +20,9 @@ class _SymbolsScreenState extends State<SymbolsScreen> {
       length: 2, // Number of tabs
       child: Scaffold(
         appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.white),
           backgroundColor: AppTheme.mainColor,
-          title: const Text('Symbols'),
+          title: Text('Symbols for ${widget.robotName}', style: TextStyle(fontSize: 13),),
           bottom: const TabBar(
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white54,
@@ -83,9 +85,7 @@ class _SymbolsScreenState extends State<SymbolsScreen> {
   Widget allowedSymbols(){
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc("eYVA7cUagdQSqgCj21je9MyeNYV2")
-          .collection('symbols')
+          .collection('automations')
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -107,14 +107,19 @@ class _SymbolsScreenState extends State<SymbolsScreen> {
           itemBuilder: (context, index) {
             final symbolData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
             final symbol = symbolData['symbol'] as String?;
+            final lot = symbolData['lotSize'] as String?;
+            final action = symbolData['action'] as String?;
+            final trades = symbolData['numberOfTrades'] as String?;
+            final platform = symbolData['platform'] as String?;
 
             return Card(
               child: ListTile(
-                title: Text(symbol ?? 'Unknown Symbol'),
+                title: Text('$symbol - $platform', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+                subtitle: Text('Lot: $lot - Action: $action - Trades: $trades',style: TextStyle(fontSize: 11),),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    // TODO: Implement delete functionality
+
                   },
                 ),
               ),
@@ -126,36 +131,7 @@ class _SymbolsScreenState extends State<SymbolsScreen> {
   }
   Future<void> _addSymbolToUser(BuildContext context, String symbol) async {
 
-    try {
-      // Show loading spinner
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: SpinKitFadingCircle(color: Colors.blue),
-        ),
-      );
+    Navigator.pushNamed(context, 'selectedSymbolScreen', arguments: symbol);
 
-      final symbolData = {
-        'symbol': symbol,
-      };
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc("eYVA7cUagdQSqgCj21je9MyeNYV2")
-          .collection('symbols')
-          .add(symbolData);
-
-      // Hide loading spinner
-      Navigator.of(context, rootNavigator: true).pop();
-
-      // Show snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Symbol added successfully')),
-      );
-    } catch (e) {
-      print('Error adding symbol: $e');
-      // Handle error appropriately, e.g., show an error dialog
-    }
   }
 }

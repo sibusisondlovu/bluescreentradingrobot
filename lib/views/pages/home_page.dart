@@ -18,13 +18,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> robots = [];
   bool isLoading = true;
+  String _selectedRobot = "Select Robot or Add";
+  String _selectedRobotId = '';
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-          height: MediaQuery.of(context).size.height * 0.35,
+
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -36,7 +38,8 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           child: Container(
-            margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05),
+            margin:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             child: Column(
               children: [
@@ -47,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const Center(
                   child: Text(
-                    'Good day Connie,',
+                    'Blue Screen EA,',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 20,
@@ -55,155 +58,180 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                const Center(
+                Center(
                   child: Text(
-                    'UserId: KFX-123-CON',
-                    style: TextStyle(
+                    _selectedRobot,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                       color: Colors.white,
                     ),
                   ),
-                ), // Closing parenthesis added here
+                ),
+                if (_selectedRobot !=  "Select Robot or Add") Card(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Column(
+                          children: [
+                            Icon(Icons.play_arrow, color: Colors.green),
+                            SizedBox(height: 8),
+                            Text('Start'),
+                          ],
+                        ),
+                        InkWell(
+                          onTap: (){
+                            Navigator.pushNamed(context, 'symbolsScreen', arguments: _selectedRobot);
+                          },
+                          child: const Column(
+                            children: [
+                              Icon(Icons.candlestick_chart, color: Colors.blue),
+                              SizedBox(height: 8),
+                              Text('Symbols'),
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap:  (){
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.warning,
+                              animType: AnimType.bottomSlide,
+                              title: 'Confirm Delete \n$_selectedRobot',
+                              desc: 'Are you sure you want to delete this robot?',
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () async {
+                                try {
+
+                                  await FirebaseFirestore.instance.collection('memberships').doc(_selectedRobotId).delete();
+
+                                } catch (e) {
+                                  print('Error deleting item: $e');
+                                  // Handle error appropriately, e.g., show an error dialog
+                                } finally {
+
+                                }
+                              },
+                            ).show();
+
+                          },
+                          child: const Column(
+                            children: [
+                              Icon(Icons.delete, color: Colors.red),
+                              SizedBox(height: 8),
+                              Text('Delete'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ) else Container()
               ],
             ),
           ),
         ),
-        StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc("eYVA7cUagdQSqgCj21je9MyeNYV2")
-              .collection('robots')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('memberships')
+                .where('emailAddress', isEqualTo: 'demo@kairos.co.za')
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (snapshot.hasData && snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Text(
-                  'You don\'t have any robots yet. Add one using the button below.',
-                  textAlign: TextAlign.center,
-                ),
-              );
-            }
+              if (snapshot.hasData && snapshot.data!.docs.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 20.0, bottom: 10),
+                    child: Text(
+                      style: TextStyle(fontSize: 13),
+                      'No memberships found for this email address.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
 
-            return Expanded(
-              child: ListView.builder(
+              return ListView.builder(
+                shrinkWrap: true,
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  final robotData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                  return _buildRobotTile(robotData);
+                  final membershipData =
+                      snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                  final ownerName = membershipData['mentorId'] as String?;
+                  final valid = membershipData['activeUntil'] as String?;
+                  final robotName = membershipData['robotName'] as String?;
+                  final emailAddress = membershipData['emailAddress'] as String?;
+                  final contactNumber = membershipData['contactNumber'] as String?;
+                  final status = membershipData['status'] as String?;
+                  final robotId = membershipData['robotId'] as String?;
+                  return Card(
+                    color: const Color(0xFF001F3F),
+                    child: ListTile(
+                      leading: Image.asset(
+                        'assets/images/app-logo.png',
+                      ),
+                      title: Text(
+                        robotName!,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Owner: $ownerName, \nValid: $valid',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      trailing: GestureDetector(
+                        onTap: (){
+                          AwesomeDialog(
+                            btnOkText: "Select Robot",
+                            dismissOnBackKeyPress: true,
+                              dismissOnTouchOutside: true,
+                              context: context,
+                              dialogType: DialogType.info,
+                              animType: AnimType.rightSlide,
+                              title: 'Robot Info',
+                              desc: 'Name: $robotName\nOwner: $ownerName\nEmail: $emailAddress\nContact Number: $contactNumber\nValid: $valid',
+                          btnOkOnPress: () {
+                              setState(() {
+                                _selectedRobot = robotName;
+                                _selectedRobotId = robotId!;
+                              });
+                          },
+                          ).show();
+                        },
+                        child: const Icon(
+                          Icons.info_outline,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                  );
                 },
-              ),
-            );
-          },
-        ),
-        CustomElevatedButton(text: 'Add New Robot', onPressed: () async {
-
-            await AwesomeDialog(
-            context: context,
-            dialogType: DialogType.info,
-            title: 'Adding Your Robot',
-            desc: 'You are adding a robot. Please authenticate to proceed.',
-            btnOkText: 'Authenticate',
-            btnOkOnPress: () {
-              // Close the dialog
-              Navigator.of(context).pop();
-
-              // Show loading spinner
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => const Center(
-                  child: SpinKitFadingCircle(color: Colors.blue),
-                ),
               );
-
-              // Save robot details to Firestore
-              _saveRobotDetails();
             },
-            ).show();
-        })
-
+          ),
+        ),
+        CustomElevatedButton(
+            text: 'Add New Robot',
+            onPressed: () async {
+             Navigator.pushNamed(context, 'licenceActivationScreen');
+            })
       ],
     ); // Closing bracket added here
   }
 
-  Future<void> _saveRobotDetails() async {
-    try {
-      final robotData = {
-        'robotName': 'Test Robot',
-        'description': 'Test Description',
-        'owner': 'Kairos FX',
-      };
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc("eYVA7cUagdQSqgCj21je9MyeNYV2")
-          .collection('robots')
-          .add(robotData);
-
-      // Hide loading spinner and navigate to the next screen
-      Navigator.of(context, rootNavigator: true).pop(); // Hide loading spinner
-     // _navigateToAddRobotScreen(); // Navigate to add robot screen
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error saving robot details: $e');
-      }
-      // Handle error appropriately, e.g., show an error dialog
-    }
-  }
-  Widget _buildActionItem(IconData icon, String text) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, 'symbolsScreen');
-      },
-      child: Column(
-        children: [
-          Icon(icon),
-          Text(text),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRobotTile(robot) {
-    return Card(
-      color: Colors.blue[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        leading: Image.asset("assets/images/app-logo.png"),
-        title: Text(
-          robot['robotName'] + ' - ' + robot['owner'], // Display robot name or default
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              robot['description'] ?? 'Kairos FX', // Display robot name or default
-            ),
-            const SizedBox(height: 15,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildActionItem(Icons.play_arrow, 'Start'),
-                _buildActionItem(Icons.currency_exchange, 'Symbols'),
-                _buildActionItem(Icons.delete, 'Delete'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

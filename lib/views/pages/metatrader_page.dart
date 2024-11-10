@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -17,6 +19,9 @@ class _MetatraderPageState extends State<MetatraderPage> {
   bool _obscurePassword = true;
   int _selectedPlatform = 0;
   String _selected = "MT4";
+  String _status = "";
+
+  List<Map<String, dynamic>> _metatraderDataList = [];
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _serverController = TextEditingController();
@@ -27,6 +32,31 @@ class _MetatraderPageState extends State<MetatraderPage> {
       _obscurePassword = !_obscurePassword;
     });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMetatraderData(); // Call the fetch function
+  }
+
+  Future<void> _fetchMetatraderData() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance.collection('metatrader').get();
+
+      _metatraderDataList = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      _usernameController.text = _metatraderDataList[0]['mt4_username'];
+      _serverController.text = _metatraderDataList[0]['mt4_server'];
+      _passwordController.text = _metatraderDataList[0]['mt4_password'];
+      _status = _metatraderDataList[0]['mt4_status'];
+
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching Metatrader data: $e');
+      }
+      // Handle error appropriately, e.g., show an error dialog
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,9 +144,16 @@ class _MetatraderPageState extends State<MetatraderPage> {
 
               if (index == 0) {
                 _selected = "MT4";
-
+                _usernameController.text = _metatraderDataList[0]['mt4_username'];
+                _serverController.text = _metatraderDataList[0]['mt4_server'];
+                _passwordController.text = _metatraderDataList[0]['mt4_password'];
+                _status = _metatraderDataList[0]['mt4_status'];
               }else{
                 _selected = "MT5";
+                _usernameController.text = _metatraderDataList[0]['mt5_username'];
+                _serverController.text = _metatraderDataList[0]['mt5_server'];
+                _passwordController.text = _metatraderDataList[0]['mt5_password'];
+                _status = _metatraderDataList[0]['mt5_status'];
               }
             });
           },
@@ -151,6 +188,17 @@ class _MetatraderPageState extends State<MetatraderPage> {
           child: Column(
             children: [
               _buildPlatformSelection(),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0, bottom: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.do_not_disturb_on_total_silence_rounded, color: _status == 'Not Active'? Colors.red: Colors.green),
+                    SizedBox(width: 10,),
+                    Text(_status, style: TextStyle(color: _status == 'Not Active'? Colors.red: Colors.green, fontSize: 14, fontWeight: FontWeight.bold),),
+                  ],
+                ),
+              ),
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(

@@ -67,8 +67,8 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
                           children: [
                             // Instruction Text
                             Text(
-                              "Please enter your license key from the activation email.",
-                              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                              "Please enter your license key for robot you want to add provided by your mentor.",
+                              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                             ),
                             const SizedBox(height: 20),
 
@@ -151,7 +151,7 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('licences')
-          .where('licenceKy', isEqualTo: licenceKey)
+          .where('key', isEqualTo: licenceKey)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
@@ -161,16 +161,47 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
         AwesomeDialog(
           context: context,
           dialogType: DialogType.success,
-          title: 'License Details Found',
-          desc: 'Email: ${licenceData['emailAddress']}\n'
-              'Mentor: ${licenceData['mentor']}\n'
-              'Purchase Date: ${licenceData['purchaseDate']}\n'
-              'Expiry Date: ${licenceData['expiryDate']}',
-          btnOkOnPress: () {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              'layoutScreen',
-                  (Route<dynamic> route) => false,
+          title: 'Activation Successful',
+          desc: 'Email: ${licenceData['student']}\n'
+              'robotName: ${licenceData['robotName']}\n '
+              'Mentor: ${licenceData['mentorId']}\n'
+              'Expiry Date: ${licenceData['valid']}',
+          btnOkOnPress: () async {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const Center(
+                child: SpinKitCircle(
+                  color: AppTheme.mainColor,
+                  size: 50.0,
+                ),
+              ),
             );
+
+            try {
+              // Create Firestore record
+              await FirebaseFirestore.instance.collection('memberships').add({
+                'activeUntil': licenceData['valid'],
+                'contactNumber': '082 646 8770',
+                'emailAddress': licenceData['student'],
+                'id': licenceData['id'],
+                'licenceKey': licenceData['key'],
+                'mentorId': licenceData['owner'],
+                'robotId': licenceData['id'],
+                'robotName': licenceData['robotName'],
+                'status': 'Active',
+                'student': 'Sibusiso Ndlovu',
+              });
+
+              Navigator.pushNamed(context, 'layoutScreen');
+
+            } catch (e) {
+              print('Error creating Firestore record: $e');
+              // Handle error appropriately, e.g., show an error dialog
+            } finally {
+              // Dismiss progress dialog
+              Navigator.of(context).pop();
+            }
           },
         ).show();
       } else {

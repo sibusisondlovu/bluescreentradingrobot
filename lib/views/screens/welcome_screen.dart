@@ -19,13 +19,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/app-logo.png'),
-            const SizedBox(height: 20),
+            Image.asset('assets/images/app-logo.png', fit: BoxFit.fill, height: MediaQuery.of(context).size.height * 0.3, width: MediaQuery.of(context).size.width * 0.7,),
+            const SizedBox(height: 18),
             const Text(
               'Welcome To Blue Screen EA',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 24,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -33,21 +33,30 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                'Welcome to Blue Screen Robot. Please make sure all the buttons are green ticked. If only one of the test have not passed it means you wont be able to do automated trades.\n\nNote that Blue Screen Robot is not a trading robot, its an app which allows a mentor to give access of the Forex Trading Robot to their students',
+                'Welcome to Blue Screen EA. Please make sure all the buttons are green ticked. If only one of the test have not passed it means you wont be able to do automated trades.\n\nNote that Blue Screen Robot is not a trading robot, its an app which allows a mentor to give access of the Forex Trading Robot to their students',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 13,
                 ),
               ),
             ),
             const SizedBox(height: 20),
             CustomElevatedButton(
               onPressed: () {
-                openAppSettings();
+               // openAppSettings();
+                Navigator.pushNamed(context, "layoutScreen");
               },
               text: 'Allow Draw On Top',
             ),
+            const SizedBox(height: 10),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+
+              Text("Permission not enabled", style: TextStyle(color: Colors.white,fontSize: 14),),
+              Icon(Icons.cancel, color: Colors.red, size: 25,)
+            ],)
           ],
         ),
       ),
