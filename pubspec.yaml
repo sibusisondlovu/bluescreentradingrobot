@@ -10,34 +10,19 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  fluttertoast: ^8.2.8
   flutter_spinkit: ^5.2.1
-  flutter_native_splash: ^2.4.2
-  flutter_launcher_icons: ^0.14.1
   awesome_dialog: ^3.2.1
-  flutter_onboarding_slider: ^1.0.11
   provider: ^6.0.4
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
+  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^4.0.0
-
-flutter_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/images/app-logo.png"
-  min_sdk_android: 21 # android min sdk min:16, default 21
-
-flutter_native_splash:
-  color: "#ffffff"
-  image: assets/images/app-logo.png
-  color_dark: "#1a2421"
-  image_dark: assets/images/app-logo.png
 
 flutter:
   uses-material-design: true
