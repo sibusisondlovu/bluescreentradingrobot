@@ -67,7 +67,7 @@ class _LicenceActivationScreenState extends State<LicenceActivationScreen> {
                           children: [
                             // Instruction Text
                             Text(
-                              "Please enter your license key for robot you want to add provided by your mentor.",
+                              "Purchase your license key at kairos.jaspay.co.za. If you’ve already purchased it, paste it here to continue.",
                               style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                             ),
                             const SizedBox(height: 20),

@@ -21,7 +21,6 @@ class _LayoutScreenState extends State<LayoutScreen> {
     const HomePage(),
     const MetatraderPage(),
     const HelpPage(),
-    const AccountPage(),
   ];
 
   @override
@@ -40,16 +39,12 @@ class _LayoutScreenState extends State<LayoutScreen> {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.message),
+                icon: Icon(Icons.candlestick_chart),
                 label: 'Metatrader',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.notifications),
+                icon: Icon(Icons.help),
                 label: 'Help',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Account',
               ),
             ],
             currentIndex: mainScreenNotifier.pageIndex,

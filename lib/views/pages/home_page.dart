@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:bluescreenrobot/views/widgets/buttons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,13 +22,13 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   String _selectedRobot = "Select Robot or Add";
   String _selectedRobotId = '';
+  bool _isStarted = false;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -68,68 +70,98 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                if (_selectedRobot !=  "Select Robot or Add") Card(
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        const Column(
-                          children: [
-                            Icon(Icons.play_arrow, color: Colors.green),
-                            SizedBox(height: 8),
-                            Text('Start'),
-                          ],
-                        ),
-                        InkWell(
-                          onTap: (){
-                            Navigator.pushNamed(context, 'symbolsScreen', arguments: _selectedRobot);
-                          },
-                          child: const Column(
-                            children: [
-                              Icon(Icons.candlestick_chart, color: Colors.blue),
-                              SizedBox(height: 8),
-                              Text('Symbols'),
-                            ],
+                if (_selectedRobot != "Select Robot or Add")
+                  Card(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                _isStarted = !_isStarted;
+                              });
+
+                              if (_isStarted) {
+                                AwesomeDialog(
+                                  context: context,
+                                  dialogType: DialogType.info,
+                                  animType: AnimType.bottomSlide,
+                                  title: 'Automated Trading Scheduled',
+                                  desc: 'Automated trading has been scheduled. with  $_selectedRobot',
+                                  btnOkOnPress: () {
+                                    Timer(const Duration(seconds: 5), () {
+                                      Navigator.pushNamed(
+                                          context, 'automatedTradingScreen');
+                                    });
+                                  },
+                                ).show();
+                              }
+                            },
+                            child: Column(
+                              children: [
+                                Icon(
+                                  _isStarted ? Icons.stop : Icons.play_arrow,
+                                  color: _isStarted ? Colors.red : Colors.green,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(_isStarted ? 'Stop' : 'Start'),
+                              ],
+                            ),
                           ),
-                        ),
-                        InkWell(
-                          onTap:  (){
-                            AwesomeDialog(
-                              context: context,
-                              dialogType: DialogType.warning,
-                              animType: AnimType.bottomSlide,
-                              title: 'Confirm Delete \n$_selectedRobot',
-                              desc: 'Are you sure you want to delete this robot?',
-                              btnCancelOnPress: () {},
-                              btnOkOnPress: () async {
-                                try {
-
-                                  await FirebaseFirestore.instance.collection('memberships').doc(_selectedRobotId).delete();
-
-                                } catch (e) {
-                                  print('Error deleting item: $e');
-                                  // Handle error appropriately, e.g., show an error dialog
-                                } finally {
-
-                                }
-                              },
-                            ).show();
-
-                          },
-                          child: const Column(
-                            children: [
-                              Icon(Icons.delete, color: Colors.red),
-                              SizedBox(height: 8),
-                              Text('Delete'),
-                            ],
+                          InkWell(
+                            onTap: () {
+                              Navigator.pushNamed(context, 'symbolsScreen',
+                                  arguments: _selectedRobot);
+                            },
+                            child: const Column(
+                              children: [
+                                Icon(Icons.candlestick_chart,
+                                    color: Colors.blue),
+                                SizedBox(height: 8),
+                                Text('Symbols'),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          InkWell(
+                            onTap: () {
+                              AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.warning,
+                                animType: AnimType.bottomSlide,
+                                title: 'Confirm Delete \n$_selectedRobot',
+                                desc:
+                                    'Are you sure you want to delete this robot?',
+                                btnCancelOnPress: () {},
+                                btnOkOnPress: () async {
+                                  try {
+                                    await FirebaseFirestore.instance
+                                        .collection('memberships')
+                                        .doc(_selectedRobotId)
+                                        .delete();
+                                  } catch (e) {
+                                    print('Error deleting item: $e');
+                                    // Handle error appropriately, e.g., show an error dialog
+                                  } finally {}
+                                },
+                              ).show();
+                            },
+                            child: const Column(
+                              children: [
+                                Icon(Icons.delete, color: Colors.red),
+                                SizedBox(height: 8),
+                                Text('Delete'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ) else Container()
+                  )
+                else
+                  Container()
               ],
             ),
           ),
@@ -171,8 +203,10 @@ class _HomePageState extends State<HomePage> {
                   final ownerName = membershipData['mentorId'] as String?;
                   final valid = membershipData['activeUntil'] as String?;
                   final robotName = membershipData['robotName'] as String?;
-                  final emailAddress = membershipData['emailAddress'] as String?;
-                  final contactNumber = membershipData['contactNumber'] as String?;
+                  final emailAddress =
+                      membershipData['emailAddress'] as String?;
+                  final contactNumber =
+                      membershipData['contactNumber'] as String?;
                   final status = membershipData['status'] as String?;
                   final robotId = membershipData['robotId'] as String?;
                   return Card(
@@ -194,22 +228,23 @@ class _HomePageState extends State<HomePage> {
                             const TextStyle(color: Colors.white, fontSize: 12),
                       ),
                       trailing: GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           AwesomeDialog(
                             btnOkText: "Select Robot",
                             dismissOnBackKeyPress: true,
-                              dismissOnTouchOutside: true,
-                              context: context,
-                              dialogType: DialogType.info,
-                              animType: AnimType.rightSlide,
-                              title: 'Robot Info',
-                              desc: 'Name: $robotName\nOwner: $ownerName\nEmail: $emailAddress\nContact Number: $contactNumber\nValid: $valid',
-                          btnOkOnPress: () {
+                            dismissOnTouchOutside: true,
+                            context: context,
+                            dialogType: DialogType.info,
+                            animType: AnimType.rightSlide,
+                            title: 'Robot Info',
+                            desc:
+                                'Name: $robotName\nOwner: $ownerName\nEmail: $emailAddress\nContact Number: $contactNumber\nValid: $valid',
+                            btnOkOnPress: () {
                               setState(() {
                                 _selectedRobot = robotName;
                                 _selectedRobotId = robotId!;
                               });
-                          },
+                            },
                           ).show();
                         },
                         child: const Icon(
@@ -228,10 +263,9 @@ class _HomePageState extends State<HomePage> {
         CustomElevatedButton(
             text: 'Add New Robot',
             onPressed: () async {
-             Navigator.pushNamed(context, 'licenceActivationScreen');
+              Navigator.pushNamed(context, 'licenceActivationScreen');
             })
       ],
     ); // Closing bracket added here
   }
-
 }
